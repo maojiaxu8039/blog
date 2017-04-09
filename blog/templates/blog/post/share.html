@@ -1,0 +1,19 @@
+{% extends 'blog/base.html' %}
+{% block title %}分享文章{% endblock %}
+{% block content %}
+    {% if sent %}
+        <h1>邮件发送成功</h1>
+        <p>
+            "{{ post.title }}"被成功发送到{{ cd.to }}
+        </p>
+    {% else %}
+        <h1>分享"{{ post.title }}"通过邮件</h1>
+        <form action="." method="post">
+            <!--们告诉Django用as_p方法利用HTML的<p>元素来渲染它的字段-->
+            {{ form.as_p }}
+            <!--默认情况下，Django在所有的POST请求中都会检查CSRF标记（token）。请记住要在所有使用POST方法提交的表单中包含csrf_token标签-->
+            {% csrf_token %}
+            <input type="submit" value="Send e-mail">
+        </form>
+    {% endif %}
+{% endblock %}

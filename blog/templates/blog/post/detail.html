@@ -1,0 +1,53 @@
+{% extends "blog/base.html" %}{% load blog_tags %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ post.title }}</h1>
+    <p class="date">
+        Published {{ post.publish }} by {{ post.author }}
+    </p>
+    {{ post.body|markdown }}
+    <p>
+        <!--我们通过使用Django提供的 url 模板（template）标签（tag）来动态的生成URL。我们以blog为命名空间，
+        以post_share为URL，同时传递帖子ID作为参数来构建绝对的URL-->
+        <a href="{% url "blog:post_share" post.id %}">
+            分享这篇文章
+        </a>
+    </p>
+    <h2>Similar posts</h2>
+    {% for post in similar_posts %}
+        <p>
+            <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+        </p>
+    {% empty %}
+        There are on similar post yet
+    {% endfor %}
+    {% with comments.count as total_comments %}
+        <h2>
+            {{ total_comments }} comment{{ total_comments|pluralize }}
+        </h2>
+    {% endwith %}
+    {% for comment in comments %}
+        <div class="comment">
+            <p class="info">
+                <!--我们使用  forloop.counter 变量来枚举所有的评论，在每次迭代中该变量都包含循环计数-->
+                Comment {{ forloop.counter }} by {{ comment.name }}
+                {{ comment.created }}
+            </p>
+            {{ comment.body|linebreaks }}
+        </div>
+    {% empty %}
+        <p>There are no comments yet.</p>
+    {% endfor %}
+    {% if new_comment %}
+        <h2>Your comment has been added.</h2>
+    {% else %}
+        <h2>Add a new comment</h2>
+        <form action="." method="post">
+            {{ comment_form.as_p }}
+            {% csrf_token %}
+            <p><input type="submit" value="Add comment"></p>
+        </form>
+    {% endif %}
+{% endblock %}
